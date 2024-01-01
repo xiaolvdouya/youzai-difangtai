@@ -1,239 +1,578 @@
 
+
 <!DOCTYPE html>
-<html>
+<html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-
-    <title>悠哉TG号@YYDSyouzai提取组播地址和单播地址</title>
+    <title>悠哉TG号@YYDSyouzai直播源IPTVM3U 分享</title>
     <style>
         body {
-            background-color: #0f0f23;
-            font-family: Arial, sans-serif;
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f4f4;
+            color: #333;
         }
-        .container {
-            width: 600px;
-            margin: 0 auto;
+        .page-title {
             text-align: center;
-            background-color: #191937;
-            padding: 20px;
-            border-radius: 5px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            margin: 20px 0;
+            color: #00bfff;
+            font-size: 2em;
         }
-        h1 {
-            color: #00a7e1;
-            text-align: center;
-            font-size: 24px;
-            margin-bottom: 30px;
-        }
-        textarea, input[type="file"] {
-            width: 100%;
-            padding: 10px;
-            margin-bottom: 10px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            resize: vertical;
-            background-color: #f2f2f2;
-            color: #0f0f23;
-        }
-        p {
-            font-weight: bold;
-            color: #fff;
-        }
-        label {
-            margin-right: 10px;
-            color: #fff;
-        }
-        button {
-            padding: 10px 20px;
-            background-color: #00a7e1;
-            color: #fff;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-            margin-top: 20px;
-        }
-        button:hover {
-            background-color: #0093bd;
-        }
-        .output-row {
+        #m3u-list {
             display: flex;
-            justify-content: space-between;
-            margin-top: 20px;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+            padding: 20px;
         }
-        .output-column {
-            width: 45%;
+        .m3u-item {
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            padding: 20px;
+            width: 250px;
+            box-shadow: 0 8px 16px 0 rgba(0,0,0,0.1);
         }
-        .output-column p {
-            margin-top: 0;
-            color: #fff;
+        .m3u-item h3 {
+            font-size: 1.2em;
+            margin-bottom: 10px;
+            color: #00bfff;
         }
-        pre {
-            background-color: #f7f7f7;
+        .m3u-item p {
+            font-size: 0.9em;
+            color: #666;
+        }
+        .m3u-item button {
+            background-color: #00bfff;
+            color: white;
+            border: none;
             padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            overflow: auto;
-            color: #0f0f23;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 0.8em;
+            margin: 4px 2px;
+            cursor: pointer;
+            border-radius: 4px;
+            width: 100%;
+            box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
+            transition: background-color 0.3s ease, transform 0.1s ease;
         }
-        .alert {
+        .m3u-item button:active {
+            background-color: #008cbf;
+            transform: scale(0.98);
+        }
+        .progress-bar {
+            background-color: #ddd;
+            border-radius: 5px;
+            height: 20px;
+            width: 100%;
+            margin-top: 10px;
+            overflow: hidden;
+        }
+        .progress-bar-fill {
+            background: linear-gradient(to right, green, yellow, red);
+    height: 100%;
+    border-radius: 5px;
+    width: 50%;
+    line-height: 20px;
+    color: white;
+    text-align: center;
+    transition: width 0.5s ease-in-out;
+        }
+        .stream-status {
+            display: inline-block;
+            margin-left: 10px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.8em;
+            color: white;
+        }
+        .online {
+            background-color: #4CAF50;
+        }
+        .offline {
             background-color: #f44336;
+        }
+        body.dark-mode {
+            background-color: #121212;
             color: #fff;
-            padding: 10px;
+        }
+        body.dark-mode .m3u-item {
+            background: #333;
+            border-color: #444;
+        }
+        .dropdown {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            display: inline-block;
+        }
+        #dropdownButton {
+            background-color: #00bfff;
+            color: white;
+            padding: 10px 15px;
+            font-size: 1em;
+            border: none;
+            cursor: pointer;
             border-radius: 5px;
-            margin-top: 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            right: 0;
+            background-color: #f9f9f9;
+            min-width: 200px;
+            box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2);
+            border-radius: 5px;
+            padding: 10px 0;
+            z-index: 1;
+        }
+        .dropdown-content.show {
+            display: block;
+        }
+        .dropdown-content .dropdown-item {
+    color: #333;
+    padding: 10px 20px;
+    text-decoration: none;
+    display: block;
+    text-align: left;
+    width: 200px; /* 添加固定宽度 */
+    min-height: 50px; /* 添加最小高度 */
+}
+        .dropdown-content .dropdown-item:hover {
+            background-color: #ddd;
+        }
+        .dropdown-content .dropdown-item a, 
+        .dropdown-content .dropdown-item button {
+            border: none;
+            background-color: transparent;
+            color: #00bfff;
+            padding: 8px 0;
+            width: 100%;
+            text-align: left;
+        }
+        .dropdown-content .search-box {
+            padding: 0 15px;
+        }
+        .dropdown-content .search-box input[type="text"] {
+            width: 90%;
+            padding: 5px;
+            margin: 5px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
         }
     </style>
 </head>
 <body>
-    <h1>悠哉TG号@YYDSyouzai快速提取组播,单播地址</h1>
-    <div class="container">
-        <input type="file" id="fileInput" accept=".jsp" onchange="handleFileUpload()">
-        <br><br>
-        <textarea id="inputText" rows="15" placeholder="悠哉请将抓包后的数据粘贴到这里，或通过上传文件自动提取"></textarea>
-        <br>
-        <p>悠哉TG号@YYDSyouzai选择保存格式:</p>
-        <label>
-            <input type="radio" name="saveFormat" value="txt" checked> 悠哉.txt
-        </label>
-        <label>
-            <input type="radio" name="saveFormat" value="m3u">悠哉 .m3u
-        </label>
-        <br>
-        <button onclick="extractAddresses()">悠哉提取并保存地址</button>
-        <br>
-        <div class="output-row">
-            <div class="output-column">
-                <p>悠哉提取组播结果:</p>
-                <pre id="multicastOutputText"></pre>
+    <div class="dropdown">
+        <button id="dropdownButton">系统菜单</button>
+        <div class="dropdown-content">
+            <div class="dropdown-item search-box">
+                <input type="text" id="searchBox" placeholder="搜索M3U文件...">
             </div>
-            <div class="output-column">
-                <p>悠哉提取单播结果:</p>
-                <pre id="unicastOutputText"></pre>
+            <div class="dropdown-item">
+                <button id="toggleDarkMode">切换暗黑模式</button>
+            </div>
+            <div class="dropdown-item">
+                <a href="logout.php">退出登录</a>
             </div>
         </div>
     </div>
 
+    <div class="page-title">
+        <a href="https://t.me/youzaiYYDS"style="text-decoration: none; color: inherit;">
+           悠哉TG号@YYDSyouzai全国IPTV分享
+        </a>
+    </div>
+        
+        <!-- 在这里添加新的链接 -->
+         <div class="center-link">
+          <p><a href="https://t.me/youzaiYYDS">非盈利免费的学习研究资料一切资源均取自网络如有侵权违规请通知删除~手机用户直接点击这里添加我的TG群。电脑用户需外网点击或TG内添加搜索 https://t.me/youzaiYYDS </a></p>
+            </div>
+
+         <div id="m3u-list">
+                    <div class='m3u-item' data-filename="上海.m3u">
+                <h3>
+                    上海.m3u                    <span class="stream-status online">
+                        状态:正常                    </span>
+                </h3>
+                <p>更新时间：2023-12-20 10:30:47</p>
+                <button class="copyButton" data-address="https://mirror.ghproxy.com/https://raw.githubusercontent.com/fuchenyouzai/-/main/%E4%B8%8A%E6%B5%B7.m3u">
+                    复制地址
+                    <span class="copy-message"></span>
+                </button>
+                <div class='progress-bar'>
+                    <div class='progress-bar-fill'>负载均衡: 10%</div>
+                </div>
+            </div>
+                    <div class='m3u-item' data-filename="云南.m3u">
+                <h3>
+                    云南.m3u                    <span class="stream-status online">
+                        状态:正常                    </span>
+                </h3>
+                <p>更新时间：2023-12-20 10:30:47</p>
+                <button class="copyButton" data-address="https://mirror.ghproxy.com/https://github.com/fuchenyouzai/-/blob/main/%E4%BA%91%E5%8D%97.m3u">
+                    复制地址
+                    <span class="copy-message"></span>
+                </button>
+                <div class='progress-bar'>
+                    <div class='progress-bar-fill'>负载均衡: 10%</div>
+                </div>
+            </div>
+                    <div class='m3u-item' data-filename="北京.m3u">
+                <h3>
+                    北京.m3u                    <span class="stream-status online">
+                        状态:正常                    </span>
+                </h3>
+                <p>更新时间：2023-12-20 15:30:38</p>
+                <button class="copyButton" data-address="https://mirror.ghproxy.com/https://raw.githubusercontent.com/fuchenyouzai/-/main/%E5%8C%97%E4%BA%AC.m3u">
+                    复制地址
+                    <span class="copy-message"></span>
+                </button>
+                <div class='progress-bar'>
+                    <div class='progress-bar-fill'>负载均衡: 10%</div>
+                </div>
+            </div>
+       <div class='m3u-item' data-filename="黑龙江.m3u">
+                <h3>
+                    黑龙江.m3u                    <span class="stream-status online">
+                        状态:正常                    </span>
+                </h3>
+                <p>更新时间：2023-12-20 15:30:38</p>
+                <button class="copyButton" data-address="https://mirror.ghproxy.com/https://raw.githubusercontent.com/fuchenyouzai/-/main/%E9%BB%91%E9%BE%99%E6%B1%9F.m3u">
+                    复制地址
+                    <span class="copy-message"></span>
+                </button>
+                <div class='progress-bar'>
+                    <div class='progress-bar-fill'>负载均衡: 10%</div>
+                </div>
+            </div>
+                    <div class='m3u-item' data-filename="四川.m3u">
+                <h3>
+                    四川.m3u                    <span class="stream-status online">
+                        状态:正常                    </span>
+                </h3>
+                <p>更新时间：2023-12-20 15:30:22</p>
+                <button class="copyButton" data-address="https://mirror.ghproxy.com/https://raw.githubusercontent.com/fuchenyouzai/-/main/%E5%9B%9B%E5%B7%9D.m3u">
+                    复制地址
+                    <span class="copy-message"></span>
+                </button>
+                <div class='progress-bar'>
+                    <div class='progress-bar-fill'>负载均衡: 10%</div>
+                </div>
+            </div>
+                    <div class='m3u-item' data-filename="天津.m3u">
+                <h3>
+                    天津.m3u                    <span class="stream-status online">
+                        状态:正常                    </span>
+                </h3>
+                <p>更新时间：2023-12-20 15:30:39</p>
+                <button class="copyButton" data-address="https://mirror.ghproxy.com/https://raw.githubusercontent.com/fuchenyouzai/-/main/%E5%A4%A9%E6%B4%A5.m3u">
+                    复制地址
+                    <span class="copy-message"></span>
+                </button>
+                <div class='progress-bar'>
+                    <div class='progress-bar-fill'>负载均衡: 10%</div>
+                </div>
+            </div>
+                    <div class='m3u-item' data-filename="安徽.m3u">
+                <h3>
+                    安徽.m3u                    <span class="stream-status online">
+                        状态:正常                    </span>
+                </h3>
+                <p>更新时间：2023-12-20 15:30:44</p>
+                <button class="copyButton" data-address="https://mirror.ghproxy.com/https://raw.githubusercontent.com/fuchenyouzai/-/main/%E5%AE%89%E5%BE%BD.m3u">
+                    复制地址
+                    <span class="copy-message"></span>
+                </button>
+                <div class='progress-bar'>
+                    <div class='progress-bar-fill'>负载均衡: 10%</div>
+                </div>
+            </div>
+                    <div class='m3u-item' data-filename="山东.m3u">
+                <h3>
+                    山东.m3u                    <span class="stream-status online">
+                        状态:正常                    </span>
+                </h3>
+                <p>更新时间：2023-12-20 15:30:32</p>
+                <button class="copyButton" data-address="https://mirror.ghproxy.com/https://raw.githubusercontent.com/fuchenyouzai/-/main/%E5%B1%B1%E4%B8%9C.m3u">
+                    复制地址
+                    <span class="copy-message"></span>
+                </button>
+                <div class='progress-bar'>
+                    <div class='progress-bar-fill'>负载均衡: 10%</div>
+                </div>
+            </div>
+                    <div class='m3u-item' data-filename="山西.m3u">
+                <h3>
+                    山西.m3u                    <span class="stream-status online">
+                        状态:正常                    </span>
+                </h3>
+                <p>更新时间：2023-12-19 19:13:04</p>
+                <button class="copyButton" data-address="https://mirror.ghproxy.com/https://raw.githubusercontent.com/fuchenyouzai/-/main/%E5%B1%B1%E8%A5%BF.m3u">
+                    复制地址
+                    <span class="copy-message"></span>
+                </button>
+                <div class='progress-bar'>
+                    <div class='progress-bar-fill'>负载均衡: 10%</div>
+                </div>
+            </div>
+                    <div class='m3u-item' data-filename="广东.m3u">
+                <h3>
+                    广东.m3u                    <span class="stream-status online">
+                        状态:正常                    </span>
+                </h3>
+                <p>更新时间：2023-12-20 15:30:11</p>
+                <button class="copyButton" data-address="https://mirror.ghproxy.com/https://raw.githubusercontent.com/fuchenyouzai/-/main/%E5%B9%BF%E4%B8%9C.m3u">
+                    复制地址
+                    <span class="copy-message"></span>
+                </button>
+                <div class='progress-bar'>
+                    <div class='progress-bar-fill'>负载均衡: 10%</div>
+                </div>
+            </div>
+                    <div class='m3u-item' data-filename="广西.m3u">
+                <h3>
+                    广西.m3u                    <span class="stream-status online">
+                        状态:正常                    </span>
+                </h3>
+                <p>更新时间：2023-12-20 15:30:32</p>
+                <button class="copyButton" data-address="https://mirror.ghproxy.com/https://raw.githubusercontent.com/fuchenyouzai/-/main/%E5%B9%BF%E8%A5%BF.m3u">
+                    复制地址
+                    <span class="copy-message"></span>
+                </button>
+                <div class='progress-bar'>
+                    <div class='progress-bar-fill'>负载均衡: 10%</div>
+                </div>
+            </div>
+                    <div class='m3u-item' data-filename="江苏.m3u">
+                <h3>
+                    江苏.m3u                    <span class="stream-status online">
+                        状态:正常                    </span>
+                </h3>
+                <p>更新时间：2023-12-20 12:03:09</p>
+                <button class="copyButton" data-address="https://mirror.ghproxy.com/https://raw.githubusercontent.com/fuchenyouzai/-/main/%E6%B1%9F%E8%8B%8F.m3u">
+                    复制地址
+                    <span class="copy-message"></span>
+                </button>
+                <div class='progress-bar'>
+                    <div class='progress-bar-fill'>负载均衡: 10%</div>
+                </div>
+            </div>
+                    <div class='m3u-item' data-filename="河北.m3u">
+                <h3>
+                    河北.m3u                    <span class="stream-status online">
+                        状态:正常                    </span>
+                </h3>
+                <p>更新时间：2023-12-20 15:30:20</p>
+                <button class="copyButton" data-address="https://mirror.ghproxy.com/https://raw.githubusercontent.com/fuchenyouzai/-/main/%E6%B2%B3%E5%8C%97.m3u">
+                    复制地址
+                    <span class="copy-message"></span>
+                </button>
+                <div class='progress-bar'>
+                    <div class='progress-bar-fill'>负载均衡: 10%</div>
+                </div>
+            </div>
+                    <div class='m3u-item' data-filename="河南.m3u">
+                <h3>
+                    河南.m3u                    <span class="stream-status online">
+                        状态:正常                    </span>
+                </h3>
+                <p>更新时间：2023-12-20 12:03:13</p>
+                <button class="copyButton" data-address="https://mirror.ghproxy.com/https://raw.githubusercontent.com/fuchenyouzai/-/main/%E6%B2%B3%E5%8D%97.m3u">
+                    复制地址
+                    <span class="copy-message"></span>
+                </button>
+                <div class='progress-bar'>
+                    <div class='progress-bar-fill'>负载均衡: 10%</div>
+                </div>
+            </div>
+                    <div class='m3u-item' data-filename="浙江.m3u">
+                <h3>
+                    浙江.m3u                    <span class="stream-status online">
+                        状态:正常                    </span>
+                </h3>
+                <p>更新时间：2023-12-20 15:30:22</p>
+                <button class="copyButton" data-address="https://mirror.ghproxy.com/https://raw.githubusercontent.com/fuchenyouzai/-/main/%E6%B5%99%E6%B1%9F.m3u">
+                    复制地址
+                    <span class="copy-message"></span>
+                </button>
+                <div class='progress-bar'>
+                    <div class='progress-bar-fill'>负载均衡: 10%</div>
+                </div>
+            </div>
+                    <div class='m3u-item' data-filename="湖北.m3u">
+                <h3>
+                    湖北.m3u                    <span class="stream-status online">
+                        状态:正常                    </span>
+                </h3>
+                <p>更新时间：2023-12-20 15:30:53</p>
+                <button class="copyButton" data-address="https://mirror.ghproxy.com/https://raw.githubusercontent.com/fuchenyouzai/-/main/%E6%B9%96%E5%8C%97.m3u">
+                    复制地址
+                    <span class="copy-message"></span>
+                </button>
+                <div class='progress-bar'>
+                    <div class='progress-bar-fill'>负载均衡: 10%</div>
+                </div>
+            </div>
+                    <div class='m3u-item' data-filename="湖南.m3u">
+                <h3>
+                    湖南.m3u                    <span class="stream-status online">
+                        状态:正常                    </span>
+                </h3>
+                <p>更新时间：2023-12-18 22:01:49</p>
+                <button class="copyButton" data-address="https://mirror.ghproxy.com/https://raw.githubusercontent.com/fuchenyouzai/-/main/%E6%B9%96%E5%8D%97.m3u">
+                    复制地址
+                    <span class="copy-message"></span>
+                </button>
+                <div class='progress-bar'>
+                    <div class='progress-bar-fill'>负载均衡: 10%</div>
+                </div>
+            </div>
+                    <div class='m3u-item' data-filename="福建.m3u">
+                <h3>
+                    福建.m3u                    <span class="stream-status offline">
+                        维护中...                    </span>
+                </h3>
+                <p>更新时间：2023-12-20 10:31:02</p>
+                <button class="copyButton" data-address="https://mirror.ghproxy.com/https://raw.githubusercontent.com/fuchenyouzai/-/main/%E7%A6%8F%E5%BB%BA.m3u">
+                    复制地址
+                    <span class="copy-message"></span>
+                </button>
+                <div class='progress-bar'>
+                    <div class='progress-bar-fill'>负载均衡: 10%</div>
+                </div>
+            </div>
+                    <div class='m3u-item' data-filename="辽宁.m3u">
+                <h3>
+                    辽宁.m3u                    <span class="stream-status online">
+                        状态:正常                    </span>
+                </h3>
+                <p>更新时间：2023-12-20 15:33:26</p>
+                <button class="copyButton" data-address="https://mirror.ghproxy.com/https://raw.githubusercontent.com/fuchenyouzai/-/main/%E8%BE%BD%E5%AE%81.m3u">
+                    复制地址
+                    <span class="copy-message"></span>
+                </button>
+                <div class='progress-bar'>
+                    <div class='progress-bar-fill'>负载均衡: 10%</div>
+                </div>
+            </div>
+                    <div class='m3u-item' data-filename="重庆.m3u">
+                <h3>
+                    重庆.m3u                    <span class="stream-status online">
+                        状态:正常                    </span>
+                </h3>
+                <p>更新时间：2023-12-20 15:30:32</p>
+                <button class="copyButton" data-address="https://mirror.ghproxy.com/https://raw.githubusercontent.com/fuchenyouzai/-/main/%E9%87%8D%E5%BA%86.m3u">
+                    复制地址
+                    <span class="copy-message"></span>
+                </button>
+                <div class='progress-bar'>
+                    <div class='progress-bar-fill'>负载均衡: 10%</div>
+                </div>
+            </div>
+                    <div class='m3u-item' data-filename="陕西.m3u">
+                <h3>
+                    陕西.m3u                    <span class="stream-status online">
+                        状态:正常                    </span>
+                </h3>
+                <p>更新时间：2023-12-20 05:30:51</p>
+                <button class="copyButton" data-address="https://mirror.ghproxy.com/https://raw.githubusercontent.com/fuchenyouzai/-/main/%E9%99%95%E8%A5%BF.m3u">
+                    复制地址
+                    <span class="copy-message"></span>
+                </button>
+                <div class='progress-bar'>
+                    <div class='progress-bar-fill'>负载均衡: 10%</div>
+                </div>
+            </div>
+            </div>
+
     <script>
-        function extractAddresses() {
-            extractMulticastAddresses();
-            extractUnicastAddresses();
+        document.getElementById('dropdownButton').addEventListener('click', function() {
+            document.querySelector('.dropdown-content').classList.toggle('show');
+        });
+
+        window.onclick = function(event) {
+    if (!event.target.matches('#dropdownButton') && !event.target.matches('.dropdown-content') && !event.target.closest('.dropdown-content')) {
+        var dropdowns = document.getElementsByClassName("dropdown-content");
+        for (var i = 0; i < dropdowns.length; i++) {
+            var openDropdown = dropdowns[i];
+            if (openDropdown.classList.contains('show')) {
+                openDropdown.classList.remove('show');
+            }
         }
+    }
+};
 
-        function extractMulticastAddresses() {
-            var inputText = document.getElementById('inputText').value;
-            var regex = /ChannelName="([^"]*)".*?(igmp:\/\/)(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}):(\d+)/g;
-            var matches = new Set();
-            var match;
+function randomizeLoadBars() {
+    var items = document.querySelectorAll('.m3u-item .progress-bar-fill');
 
-            while ((match = regex.exec(inputText)) !== null) {
-                var channelName = match[1];
-                var multicastAddress = match[2] + match[3] + ':' + match[4];
-                var result = channelName + ',' + multicastAddress.replace('igmp://', 'rtp://');
-                matches.add(result);
-            }
+    items.forEach(function(bar) {
+        // 生成一个40到85之间的随机数
+        var randomLoad = Math.floor(Math.random() * 46) + 40; // 46 = 85 - 40 + 1
+        bar.style.width = randomLoad + '%'; // 更新进度条宽度
+        bar.textContent = '负载均衡: ' + randomLoad + '%'; // 更新文本
+    });
+}
 
-            var outputText = Array.from(matches).join('\n');
-            document.getElementById('multicastOutputText').textContent = outputText;
+let inactivityTime = function () {
+    let time;
+    window.onload = resetTimer;
+    // 检测的事件
+    document.onmousemove = resetTimer;
+    document.onkeypress = resetTimer;
 
-            if (outputText.length === 0) {
-                showAlert('悠哉没有提取到组播地址！请检查抓包数据。');
-                return;
-            }
+    function logout() {
+        // 发送请求到后端执行注销
+        window.location.href = '/logout.php';
+    }
 
-            var saveFormat = document.querySelector('input[name="saveFormat"]:checked').value;
+    function resetTimer() {
+        clearTimeout(time);
+        time = setTimeout(logout, 600000);  // 设置时间，例如600000毫秒（10分钟）
+    }
+};
 
-            if (saveFormat === 'txt') {
-                var blob = new Blob([outputText], {type: 'text/plain'});
-                var filename = '悠哉提取组播结果.txt';
-                saveBlobAsFile(blob, filename);
-            } else if (saveFormat === 'm3u') {
-                var m3uContent = '#EXTM3U\n';
-                matches.forEach(function (address) {
-                    m3uContent += '#EXTINF:-1,' + address.split(',')[0] + '\n';
-                    m3uContent += address.split(',')[1] + '\n';
+inactivityTime();
+
+// 每隔一段时间（例如，每3秒）随机更新一次进度条
+setInterval(randomizeLoadBars, 9000);
+
+        document.getElementById('toggleDarkMode').addEventListener('click', function() {
+            document.body.classList.toggle('dark-mode');
+        });
+
+        document.getElementById('searchBox').addEventListener('input', function(e) {
+            var searchValue = e.target.value.toLowerCase();
+            var items = document.querySelectorAll('.m3u-item');
+
+            items.forEach(function(item) {
+                var filename = item.getAttribute('data-filename');
+                if (filename.includes(searchValue)) {
+                    item.style.display = 'flex';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        });
+
+        document.querySelectorAll('.copyButton').forEach(function(button) {
+            button.addEventListener('click', function() {
+                var address = this.getAttribute('data-address');
+                navigator.clipboard.writeText(address).then(function() {
+                    button.querySelector('.copy-message').textContent = '复制成功!';
+                    setTimeout(function() {
+                        button.querySelector('.copy-message').textContent = '';
+                    }, 2000);
+                }, function(err) {
+                    button.querySelector('.copy-message').textContent = '复制失败!';
+                    setTimeout(function() {
+                        button.querySelector('.copy-message').textContent = '';
+                    }, 2000);
                 });
-                var blob = new Blob([m3uContent], {type: 'text/plain'});
-                var filename = '悠哉提取组播结果.m3u';
-                saveBlobAsFile(blob, filename);
-            }
-        }
-
-        function extractUnicastAddresses() {
-            var inputText = document.getElementById('inputText').value;
-            var regex = /ChannelName="([^"]*)".*?(rtsp:\/\/\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\/.*?)"/g;
-            var matches = new Set();
-            var match;
-
-            while ((match = regex.exec(inputText)) !== null) {
-                var channelName = match[1];
-                var unicastAddress = match[2].split('.smil')[0] + '.smil';
-                var result = channelName + ',' + unicastAddress;
-                matches.add(result);
-            }
-
-            var outputText = Array.from(matches).join('\n');
-            document.getElementById('unicastOutputText').textContent = outputText;
-
-            if (outputText.length === 0) {
-                showAlert('悠哉没有提取到单播地址！请检查抓包数据。');
-                return;
-            }
-
-            var saveFormat = document.querySelector('input[name="saveFormat"]:checked').value;
-
-            if (saveFormat === 'txt') {
-                var blob = new Blob([outputText], {type: 'text/plain'});
-                var filename = '悠哉提取单播结果.txt';
-                saveBlobAsFile(blob, filename);
-            } else if (saveFormat === 'm3u') {
-                var m3uContent = '#EXTM3U\n';
-                matches.forEach(function (address) {
-                    m3uContent += '#EXTINF:-1,' + address.split(',')[0] + '\n';
-                    m3uContent += address.split(',')[1] + '\n';
-                });
-                var blob = new Blob([m3uContent], {type: 'text/plain'});
-                var filename = '悠哉提取单播结果.m3u';
-                saveBlobAsFile(blob, filename);
-            }
-        }
-
-        function handleFileUpload() {
-            var fileInput = document.getElementById('fileInput');
-            var file = fileInput.files[0];
-
-            if (file) {
-                var reader = new FileReader();
-                reader.onload = function(e) {
-                    var content = e.target.result;
-                    document.getElementById('inputText').value = content;
-                    extractAddresses(); // 自动调用提取函数
-                };
-                reader.readAsText(file);
-            } else {
-                showAlert('请选择一个.jsp文件！');
-            }
-        }
-
-        function saveBlobAsFile(blob, filename) {
-            var a = document.createElement('a');
-            a.href = URL.createObjectURL(blob);
-            a.download = filename;
-            a.style.display = 'none';
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-        }
-
-        function showAlert(message) {
-            var div = document.createElement('div');
-            div.className = 'alert';
-            div.appendChild(document.createTextNode(message));
-            document.body.appendChild(div);
-            setTimeout(function () {
-                document.body.removeChild(div);
-            }, 3000);
-        }
+            });
+        });
     </script>
 </body>
 </html>
